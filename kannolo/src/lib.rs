@@ -1,0 +1,58 @@
+#![feature(iter_array_chunks)]
+#![cfg_attr(target_arch = "x86_64", feature(stdarch_x86_mm_shuffle))]
+#![feature(portable_simd)]
+#![feature(thread_id_value)]
+
+#[cfg(feature = "python")]
+use pyo3::types::PyModuleMethods;
+
+#[cfg(feature = "python")]
+pub mod pylib;
+#[cfg(feature = "python")]
+use crate::pylib::DenseFlatIndex;
+#[cfg(feature = "python")]
+use crate::pylib::DensePQHNSW as DensePQIndexPy;
+#[cfg(feature = "python")]
+use crate::pylib::DensePlainHNSW as DensePlainIndexPy;
+#[cfg(feature = "python")]
+use crate::pylib::SparseDotVByteHNSW as SparseDotVByteIndexPy;
+#[cfg(feature = "python")]
+use crate::pylib::SparseFixedU8HNSW as SparseFixedU8IndexPy;
+#[cfg(feature = "python")]
+use crate::pylib::SparseFixedU16HNSW as SparseFixedU16IndexPy;
+#[cfg(feature = "python")]
+use crate::pylib::SparseFlatIndex;
+#[cfg(all(feature = "python", feature = "multivec"))]
+use crate::pylib::SparseMultivecRerankIndex;
+#[cfg(all(feature = "python", feature = "multivec"))]
+use crate::pylib::SparseMultivecTwoLevelsPQRerankIndex;
+#[cfg(feature = "python")]
+use crate::pylib::SparsePlainHNSW as SparsePlainIndexPy;
+#[cfg(feature = "python")]
+use pyo3::prelude::PyModule;
+#[cfg(feature = "python")]
+use pyo3::{Bound, PyResult, pymodule};
+
+pub mod graph;
+pub mod visited_set;
+
+pub mod indexes;
+pub use indexes::{hnsw, hnsw_utils};
+
+#[cfg(feature = "python")]
+#[pymodule]
+pub fn kannolo(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<DensePlainIndexPy>()?;
+    m.add_class::<SparsePlainIndexPy>()?;
+    m.add_class::<SparseDotVByteIndexPy>()?;
+    m.add_class::<SparseFixedU8IndexPy>()?;
+    m.add_class::<SparseFixedU16IndexPy>()?;
+    m.add_class::<DensePQIndexPy>()?;
+    m.add_class::<DenseFlatIndex>()?;
+    m.add_class::<SparseFlatIndex>()?;
+    #[cfg(feature = "multivec")]
+    m.add_class::<SparseMultivecRerankIndex>()?;
+    #[cfg(feature = "multivec")]
+    m.add_class::<SparseMultivecTwoLevelsPQRerankIndex>()?;
+    Ok(())
+}

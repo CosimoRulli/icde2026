@@ -1,0 +1,44 @@
+name = "msmarco-v1-lilsr-k100-medoid_dotpacking8_sparse-mem_budget_1.0-recall_90"
+title = "msmarco-v1-lilsr-k100-medoid_dotpacking8 - Recall 90%"
+description = "Auto-extracted best config for msmarco-v1-lilsr-k100-medoid_dotpacking8, memory budget 1.0, recall >= 90%."
+
+[folder]
+data = "~/data/lilsr-big/data"
+index = "~/data/lilsr-big/indexes"
+qrels_path = "~/data/lilsr-big/data/qrels.dev.small.tsv"
+experiment = "."
+
+[filename]
+dataset = "documents.bin"
+queries = "queries.bin"
+groundtruth = "groundtruth_100.tsv"
+doc_ids = "doc_ids.npy"
+query_ids = "queries_ids.npy"
+index = "msmarco-v1-lilsr-k100-medoid_dotpacking8_sparse-mem_budget_1.0-recall_90"
+
+[settings]
+k = 100
+n-runs = 1
+NUMA = "numactl --physcpubind='0' --localalloc"
+build = true
+metric = "RR@10"
+delete = true
+
+[indexing_parameters]
+centroid-fraction = 0.1
+clustering-algorithm = "random-kmeans-inverted-index-approx"
+kmeans-doc-cut = 15
+kmeans-pruning-factor = 0.0
+knn = 0
+max-fraction = 3.0
+min-cluster-size = 10
+n-postings = 6000
+pruning-strategy = "global-threshold"
+summarization-strategy = "medoid"
+value-type = "dotpacking8-sparse-scalar"
+
+[query.recall_90]
+query-cut = 6
+heap-factor = 0.8
+knn = 0
+first-sorted = false

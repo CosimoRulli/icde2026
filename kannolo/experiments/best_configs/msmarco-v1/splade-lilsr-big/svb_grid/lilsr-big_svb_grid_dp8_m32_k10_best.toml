@@ -1,0 +1,58 @@
+name =        "lilsr-big_svb_grid_dp8_m32_k10_best"
+title =       "Best SVB-compressed configs (replicated) -- dp8, m=32, k=10"
+description = "Fastest config per target recall (recall >= target), distilled from the grid final_report.tsv. Builds the index and EGB permutation from the downloaded collection (build=true). Run with run_experiments.py."
+dataset =     "SPLADE v3 lilsr-big on MS-MARCO"
+dataset-type = "sparse"
+component-type = "u16"
+# value-type intentionally omitted: dotpacking8-scalaru8 ignores --value-type.
+build-command =       "./target/release/hnsw_build"
+permutation-command = "./target/release/hnsw_egb_permutation"
+query-command =       "./target/release/hnsw_compress_search"
+encoder =     "dotpacking8-scalaru8"
+
+[settings]
+k =           10
+num-runs =    1
+NUMA =        "numactl --physcpubind='0' --localalloc"
+build =       true     # build the index from the downloaded collection
+permutation = true     # build the EGB permutation from the index
+metric =      ""
+
+[folder]
+data =        "~/data/lilsr-big/data"
+index =       "~/data/lilsr-big/kannolo"
+qrels_path =  ""
+experiment =  "experiments/best_configs/msmarco-v1/splade-lilsr-big/svb_grid/runs"
+
+[filename]
+dataset = "documents.bin"
+queries = "queries.bin"
+groundtruth = "groundtruth.tsv"
+doc_ids = "doc_ids.npy"
+query_ids = "queries_ids.npy"
+index = "lilsr-big_svb_grid"
+
+[indexing_parameters]
+m =               32
+ef-construction = 2000
+metric =          "dotproduct"
+
+[query]
+    # Target Recall: 90 | Achieved: 90.490 | Query Time (us): 7336 | Bits/Edge: 19.07  [standard HNSW, ef-search only]
+    [query."recall_90"]
+    early-termination = "none"
+    ef-search =      512
+    lambda =         0.0
+    compression =    "stream-v-byte"
+    permute =        true
+    # Target Recall: 95 | Achieved: 95.702 | Query Time (us): 68755 | Bits/Edge: 19.07
+    # NOTE: SLOW lambda fallback. dp8 `none` caps at 94.44% @ ef2048 (~25.7 ms), so the only >=95%
+    # config measured for dp8 k=10 is distance-adaptive lambda=0.40 ef=10. Pending:
+    # dp8_svb_grid_k10_none_push95_cignale.toml (ef 2048->8192) should cross 95% with `none` at
+    # ~50 ms (ef~4096) and replace this cell once run.
+    [query."recall_95"]
+    early-termination = "distance-adaptive"
+    ef-search =      10
+    lambda =         0.4
+    compression =    "stream-v-byte"
+    permute =        true

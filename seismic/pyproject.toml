@@ -1,0 +1,35 @@
+[build-system]
+requires = ["maturin>=1.2.3"]
+build-backend = "maturin"
+
+[project]
+name = "pyseismic-lsr"
+version = "0.4.0"
+description = "Seismic: A high-performance data structure for fast retrieval over learned sparse representations."
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "License :: OSI Approved :: MIT License",
+
+]
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    { name = "Sebastian Bruch", email = "s.bruch@northeastern.edu"},
+    { name = "Franco Maria Nardini", email = "francomaria.nardini@isti.cnr.it" },
+    { name = "Cosimo Rulli", email = "cosimo.rulli@isti.cnr.it"},
+    { name = "Rossano Venturini", email = "rossano.venturini@unipi.it"},
+    { name = "Leonardo Venuta", email = "l.venuta@studenti.unipi.it"}
+
+]
+keywords = ["search", "indexing", "sparse retrieval"]
+
+
+dependencies = [
+    "numpy",
+]
+
+[tool.maturin]
+features = ["default", "python"]

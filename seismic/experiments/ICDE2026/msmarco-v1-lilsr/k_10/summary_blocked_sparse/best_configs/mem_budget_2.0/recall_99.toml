@@ -1,0 +1,45 @@
+name = "msmarco-v1-lilsr-k10-summary_blocked_sparse-mem_budget_2.0-recall_99"
+title = "msmarco-v1-lilsr-k10-summary_blocked_sparse - Recall 99%"
+description = "Auto-extracted best config for msmarco-v1-lilsr-k10-summary_blocked_sparse, memory budget 2.0, recall >= 99%. Filtered to shrunk grid (n in {3000,4000,6000,8000,10000}, cf=0.1, se in {0.4,0.5}, mf in {3.0,4.0}, qc in {4,6,8,10}, hf in {0.9,1.0}, fs=true). Source: pooled explorative + highmem f16 grids. Forward index encoder swapped from f16 to blocked-sparse, reusing the summary_f16 operating point (mem_budget label is provenance only)."
+
+[folder]
+data = "~/data/lilsr-big/data"
+index = "~/data/lilsr-big/indexes"
+qrels_path = "~/data/lilsr-big/data/qrels.dev.small.tsv"
+experiment = "."
+
+[filename]
+dataset = "documents.bin"
+queries = "queries.bin"
+groundtruth = "groundtruth.tsv"
+doc_ids = "doc_ids.npy"
+query_ids = "queries_ids.npy"
+index = "msmarco-v1-lilsr-k10-summary_blocked_sparse-mem_budget_2.0-recall_99"
+
+[settings]
+k = 10
+n-runs = 1
+NUMA = "numactl --physcpubind='0' --localalloc"
+build = true
+metric = "RR@10"
+delete = true
+
+[indexing_parameters]
+centroid-fraction = 0.1
+clustering-algorithm = "random-kmeans-inverted-index-approx"
+kmeans-doc-cut = 15
+kmeans-pruning-factor = 0.0
+knn = 0
+max-fraction = 4.0
+min-cluster-size = 10
+n-postings = 10000
+pruning-strategy = "global-threshold"
+summary-energy = 0.5
+component-type = "u16"
+value-type = "blocked-sparse"
+
+[query.recall_99]
+query-cut = 6
+heap-factor = 1.0
+knn = 0
+first-sorted = true

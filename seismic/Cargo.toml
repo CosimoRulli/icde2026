@@ -1,0 +1,53 @@
+[package]
+name = "seismic"
+version = "0.4.0"
+edition = "2024"
+license = "MIT"
+description = "Seismic is designed for effective and efficient KNN retrieval over learned sparse embeddings."
+repository = "https://github.com/TusKANNy/seismic"
+readme = "README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+default = ["python"]
+python = ["dep:pyo3", "dep:numpy"]
+
+[lib]
+name = "seismic"
+
+# "cdylib" is necessary to produce a shared library for Python to import from.
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+clap = { version = "4.5", features = ["derive"] }
+rayon = "1.11"
+# TODO: f16 available in nightly, but not supported by crates: https://github.com/rust-num/num-traits/pull/333
+half = { version = "2.6", features = [
+    "bytemuck",
+    "serde",
+    "std",
+    "num-traits",
+] }
+itertools = "0.14"
+rand = "0.9"
+rand_chacha = "0.9"
+num-traits = "0.2"
+pyo3 = { version = "0.26", features = ["extension-module"], optional = true }
+numpy = { version = "0.26", optional = true }
+indicatif = { version = "0.18", features = ["rayon"] }
+vectorium = { git = "https://github.com/TusKANNy/vectorium.git", branch = "feature/quantization" }
+serde_json = "1.0"
+flate2 = "1.1"
+tar = "0.4"
+rustc-hash = "2.1.1"
+toolkit = { git = "https://github.com/rossanoventurini/toolkit.git" }
+mem_dbg = "0.3.0"
+
+[[bin]]
+name = "perf_inverted_index"
+path = "src/bin/perf_inverted_index.rs"
+
+[profile.release]
+lto = true

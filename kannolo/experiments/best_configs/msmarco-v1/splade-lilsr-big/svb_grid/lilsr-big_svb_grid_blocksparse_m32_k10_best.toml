@@ -1,0 +1,55 @@
+name =        "lilsr-big_svb_grid_blocksparse_m32_k10_best"
+title =       "BlockedSparse (fast f16 kernel, in-memory convert) -- m=32, k=10"
+description = "In-memory convert of the EXISTING plain-f16 index to the blocked-sparse encoder (--convert-in-memory). Reuses the f16 graph + f16 EGB permutation, so recall == the f16 \\hnswsvb rows; only the (faster) SIMD kernel changes. No rebuild."
+dataset =     "SPLADE v3 lilsr-big on MS-MARCO"
+dataset-type = "sparse"
+component-type = "u16"
+value-type =  "f16"
+build-command =       "./target/release/hnsw_build"
+permutation-command = "./target/release/hnsw_egb_permutation"
+query-command =       "./target/release/hnsw_compress_search"
+encoder =     "plain"
+
+[settings]
+k =           10
+num-runs =    1
+NUMA =        "numactl --physcpubind='0' --localalloc"
+build =       true     # build the plain-f16 index (converted to blocked-sparse in memory at query time)
+permutation = true     # build the plain-f16 EGB permutation from the index
+convert_target_encoder = "blocked-sparse"
+metric =      ""
+
+[folder]
+data =        "~/data/lilsr-big/data"
+index =       "~/data/lilsr-big/kannolo"
+qrels_path =  ""
+experiment =  "experiments/best_configs/msmarco-v1/splade-lilsr-big/svb_grid/runs"
+
+[filename]
+dataset = "documents.bin"
+queries = "queries.bin"
+groundtruth = "groundtruth.tsv"
+doc_ids = "doc_ids.npy"
+query_ids = "queries_ids.npy"
+index = "lilsr-big_svb_grid"
+
+[indexing_parameters]
+m =               32
+ef-construction = 2000
+metric =          "dotproduct"
+
+[query]
+    # f16 best k10 r90: distance-adaptive ef16 lambda0.2 (f16 graph achieved 90.163)
+    [query."recall_90"]
+    early-termination = "distance-adaptive"
+    ef-search =      16
+    lambda =         0.2
+    compression =    "stream-v-byte"
+    permute =        true
+    # f16 best k10 r95: distance-adaptive ef20 lambda0.3 (f16 graph achieved 95.291)
+    [query."recall_95"]
+    early-termination = "distance-adaptive"
+    ef-search =      20
+    lambda =         0.3
+    compression =    "stream-v-byte"
+    permute =        true

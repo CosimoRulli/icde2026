@@ -1,0 +1,46 @@
+name =        "cocondenser_svb_grid_dp8_m8_k10_best"
+title =       "Best SVB-compressed configs (replicated) -- dp8, m=8, k=10"
+description = "Fastest config per target recall (recall >= target), distilled from the grid final_report.tsv. Builds the index and EGB permutation from the downloaded collection (build=true). Run with run_experiments.py."
+dataset =     "Splade cocondenser on MS-MARCO"
+dataset-type = "sparse"
+component-type = "u16"
+build-command =       "./target/release/hnsw_build"
+permutation-command = "./target/release/hnsw_egb_permutation"
+query-command =       "./target/release/hnsw_compress_search"
+encoder =     "dotpacking8-scalaru8"
+
+[settings]
+NUMA =        "numactl --physcpubind='0' --localalloc"
+k =           10
+num-runs =    1
+build =       true     # build the index from the downloaded collection
+permutation = true     # build the EGB permutation from the index
+metric =      ""
+
+[folder]
+data =        "~/data/cocondenser/data"
+index =       "~/data/cocondenser/kannolo"
+qrels_path =  ""
+experiment =  "experiments/best_configs/msmarco-v1/splade-cocondenser/svb_grid/runs"
+
+[filename]
+dataset = "documents.bin"
+queries = "queries.bin"
+groundtruth = "groundtruth.tsv"
+doc_ids = "doc_ids.npy"
+query_ids = "queries_ids.npy"
+index = "cocondenser_svb_grid"
+
+[indexing_parameters]
+m =               8
+ef-construction = 2000
+metric =          "dotproduct"
+
+[query]
+    # Target Recall: 90 | Achieved: 90.148 | Query Time (us): 397 | Bits/Edge: 22.31
+    [query."recall_90"]
+    early-termination = "distance-adaptive"
+    ef-search =      14
+    lambda =         0.13
+    compression =    "stream-v-byte"
+    permute =        true

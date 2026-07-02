@@ -1,0 +1,182 @@
+
+
+<h1 align="center">kANNolo</h1>
+<p align="center">
+    <img width="300px" src="/imgs/kannolo_with_text.jpeg" />
+</p>
+
+<p align="center">
+    <a href="https://rdcu.be/eii62"><img src="https://badgen.net/static/paper/ECIR 2025/yellow"" /></a>  
+    <a href="https://arxiv.org/abs/2501.06121"><img src="https://badgen.net/static/arXiv/2501.06121/red" /></a>
+</p>
+
+<p align="center">    
+    <a href="https://crates.io/crates/kannolo"><img src="https://badgen.infra.medigy.com/crates/v/kannolo" /></a>
+    <a href="https://crates.io/crates/kannolo"><img src="https://badgen.infra.medigy.com/crates/d/kannolo" /></a>
+    <a href="LICENSE"><img src="https://badgen.net/static/license/MIT/blue" /></a>
+</p>
+
+<!--
+<p align="center">    
+    <a href="https://crates.io/crates/seismic"><img src="https://badgen.infra.medigy.com/crates/v/seismic" /></a>
+    <a href="https://crates.io/crates/seismic"><img src="https://badgen.infra.medigy.com/crates/d/seismic" /></a>
+    <a href="LICENSE.md"><img src="https://badgen.net/static/license/MIT/blue" /></a>
+</p>
+
+-->
+
+kANNolo is a research-oriented library for Approximate Nearest Neighbors (ANN) search written in Rust 🦀. It is explicitly designed to combine usability with performance effectively. Designed with modularity and researchers in mind, kANNolo makes prototyping new ANN search algorithms and data structures easy. kANNolo supports both dense and sparse embeddings seamlessly. It implements the HNSW graph index and Product Quantization.
+
+
+## Python Installation
+
+### Quick start (prebuilt wheels)
+For most users, this is the easiest option:
+```bash
+pip install kannolo
+```
+The prebuilt wheel includes dense and sparse HNSW indexes. If a compatible wheel exists for your platform, `pip` downloads and installs it directly. If not, `pip` compiles from source.
+
+To use multivector reranking (`SparseMultivecRerankIndex`, `SparseMultivecTwoLevelsPQRerankIndex`), build from source with the `multivec` feature enabled (see [Building from source](#building-from-source-maximum-performance) below).
+
+### Building from source (maximum performance)
+For maximum performance optimized to your CPU, build from source. Choose one of the two approaches below:
+
+#### Shared Prerequisites
+Both building approaches require Rust and nightly:
+
+1. **Install Rust** (via `rustup`):
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+2. **Activate nightly:**
+```bash
+rustup install nightly
+rustup default nightly
+```
+
+#### Approach 1: Build from PyPI source
+Compile and install directly from PyPI with CPU optimization (dense and sparse indexes only):
+```bash
+RUSTFLAGS="-C target-cpu=native" pip install --no-binary :all: kannolo
+```
+
+This installs the package in your system/virtual environment site-packages. For multivector reranking support, use Approach 2 instead.
+
+#### Approach 2: Build from GitHub (development mode)
+Clone the repository and build for development/modification:
+
+1. **Clone and prepare:**
+```bash
+git clone https://github.com/TusKANNy/kannolo.git
+cd kannolo
+```
+
+2. **Create a virtual environment** (recommended):
+```bash
+python3 -m venv ./venv
+source ./venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+Alternatively, use `conda`:
+```bash
+conda create -n kannolo python=3.11
+conda activate kannolo
+```
+
+3. **Install maturin:**
+```bash
+pip install maturin
+```
+
+4. **Build and install in editable mode:**
+
+   Dense and sparse indexes only (default, lighter build):
+   ```bash
+   RUSTFLAGS="-C target-cpu=native" maturin develop --release
+   ```
+
+   With multivector reranking support (`SparseMultivecRerankIndex`, `SparseMultivecTwoLevelsPQRerankIndex`):
+   ```bash
+   RUSTFLAGS="-C target-cpu=native" maturin develop --release --features multivec
+   ```
+
+**Why use editable mode?** Changes to Python code take effect immediately without reinstalling. Perfect for development and prototyping.
+
+5. **Verify installation:**
+```bash
+python -c "import kannolo; print('Successfully installed kannolo!')"
+```
+
+---
+
+
+### Rust
+
+The crate exposes three feature flags:
+
+| Feature | What it enables | Default |
+|---------|-----------------|:-------:|
+| `multivec` | Multivector reranking indexes (`SparseMultivecRerankIndex`, `SparseMultivecTwoLevelsPQRerankIndex`) and the `hnsw_rerank_search` CLI binary | No |
+| `python` | PyO3 bindings — activated automatically by maturin when building the Python wheel | No |
+| `cli` | CLI binaries: `hnsw_build`, `hnsw_search` (combine with `multivec` to also get `hnsw_rerank_search`) | No |
+
+If you want to compile the **library only** (dense and sparse indexes, no multivec, no binaries):
+```bash
+RUSTFLAGS="-C target-cpu=native" cargo build --release
+```
+
+If you want the **CLI binaries** `hnsw_build` and `hnsw_search` (dense and sparse):
+```bash
+RUSTFLAGS="-C target-cpu=native" cargo build --release --features cli
+```
+
+If you want **multivector reranking** in the library (adds `SparseMultivecRerankIndex` and `SparseMultivecTwoLevelsPQRerankIndex`):
+```bash
+RUSTFLAGS="-C target-cpu=native" cargo build --release --features multivec
+```
+
+If you want **all CLI binaries including `hnsw_rerank_search`**:
+```bash
+RUSTFLAGS="-C target-cpu=native" cargo build --release --features "cli,multivec"
+```
+
+The resulting binaries are placed in `target/release/`.
+
+Details on how to use kANNolo's core engine in Rust 🦀 can be found in [`docs/RustUsage.md`](docs/RustUsage.md).
+
+Details on how to use kANNolo's Python interface can be found in [`docs/PythonUsage.md`](docs/PythonUsage.md).
+
+
+### Resources
+Check out our `docs` folder for a more detailed guide on how to use kANNolo directly in Rust, replicate the results of our paper, or use kANNolo with your custom collection. 
+
+
+### <a name="bib">📚 Bibliography</a>
+Leonardo Delfino, Domenico Erriquez, Silvio Martinico, Franco Maria Nardini, Cosimo Rulli and Rossano Venturini. "*kANNolo: Sweet and Smooth Approximate k-Nearest Neighbors Search*." Proc. ECIR. 2025.
+
+
+### Citation License
+The source code in this repository is subject to the following citation license:
+
+By downloading and using this software, you agree to cite the under-noted paper in any kind of material you produce where it was used to conduct a search or experimentation, whether be it a research paper, dissertation, article, poster, presentation, or documentation. By using this software, you have agreed to the citation license.
+
+
+ECIR 2025
+```bibtex
+@InProceedings{10.1007/978-3-031-88717-8_29,
+author =    "Leonardo Delfino and
+             Domenico Erriquez and
+             Silvio Martinico and
+             Franco Maria Nardini and
+             Cosimo Rulli and
+             Rossano Venturini",
+title =     "kANNolo: Sweet and Smooth Approximate k-Nearest Neighbors Search",
+booktitle = "Advances in Information Retrieval",
+year =      "2025",
+publisher = "Springer Nature Switzerland",
+pages =     "400--406",
+isbn =      "978-3-031-88717-8"
+}
+```
+

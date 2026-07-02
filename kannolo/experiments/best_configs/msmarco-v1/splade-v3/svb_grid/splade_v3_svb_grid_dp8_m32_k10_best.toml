@@ -1,0 +1,53 @@
+name =        "splade_v3_svb_grid_dp8_m32_k10_best"
+title =       "Best SVB-compressed configs (replicated) -- dp8, m=32, k=10"
+description = "Fastest config per target recall (recall >= target), distilled from the grid final_report.tsv. Builds the index and EGB permutation from the downloaded collection (build=true). Run with run_experiments.py."
+dataset =     "SPLADE-v3 on MS-MARCO"
+dataset-type = "sparse"
+component-type = "u16"
+build-command =       "./target/release/hnsw_build"
+permutation-command = "./target/release/hnsw_egb_permutation"
+query-command =       "./target/release/hnsw_compress_search"
+encoder =     "dotpacking8-scalaru8"
+
+[settings]
+NUMA =        "numactl --physcpubind='0' --localalloc"
+k =           10
+num-runs =    1
+build =       true     # build the index from the downloaded collection
+permutation = true     # build the EGB permutation from the index
+metric =      ""
+
+[folder]
+data =        "~/data/splade_v3/data"
+index =       "~/data/splade_v3/kannolo"
+qrels_path =  ""
+experiment =  "experiments/best_configs/msmarco-v1/splade-v3/svb_grid/runs"
+
+[filename]
+dataset = "documents.bin"
+queries = "queries.bin"
+groundtruth = "groundtruth.tsv"
+doc_ids = "doc_ids.npy"
+query_ids = "queries_ids.npy"
+index = "splade_v3_svb_grid"
+
+[indexing_parameters]
+m =               32
+ef-construction = 2000
+metric =          "dotproduct"
+
+[query]
+    # Target Recall: 90 | Achieved: 91.003 | Query Time (us): 340 | Bits/Edge: 18.64
+    [query."recall_90"]
+    early-termination = "distance-adaptive"
+    ef-search =      10
+    lambda =         0.05
+    compression =    "stream-v-byte"
+    permute =        true
+    # Target Recall: 95 | Achieved: 95.123 | Query Time (us): 514 | Bits/Edge: 18.64
+    [query."recall_95"]
+    early-termination = "distance-adaptive"
+    ef-search =      32
+    lambda =         0.03
+    compression =    "stream-v-byte"
+    permute =        true

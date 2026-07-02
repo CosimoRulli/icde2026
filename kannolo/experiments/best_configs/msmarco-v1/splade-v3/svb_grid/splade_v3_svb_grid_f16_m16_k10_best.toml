@@ -1,0 +1,61 @@
+name =        "splade_v3_svb_grid_f16_m16_k10_best"
+title =       "Best SVB-compressed configs (replicated) -- f16, m=16, k=10"
+description = "Fastest config per target recall (recall >= target), distilled from the grid final_report.tsv. Builds the index and EGB permutation from the downloaded collection (build=true). Run with run_experiments.py."
+dataset =     "SPLADE-v3 on MS-MARCO"
+dataset-type = "sparse"
+component-type = "u16"
+value-type =  "f16"
+build-command =       "./target/release/hnsw_build"
+permutation-command = "./target/release/hnsw_egb_permutation"
+query-command =       "./target/release/hnsw_compress_search"
+encoder =     "plain"
+
+[settings]
+NUMA =        "numactl --physcpubind='0' --localalloc"
+k =           10
+num-runs =    1
+build =       true     # build the index from the downloaded collection
+permutation = true     # build the EGB permutation from the index
+metric =      ""
+
+[folder]
+data =        "~/data/splade_v3/data"
+index =       "~/data/splade_v3/kannolo"
+qrels_path =  ""
+experiment =  "experiments/best_configs/msmarco-v1/splade-v3/svb_grid/runs"
+
+[filename]
+dataset = "documents.bin"
+queries = "queries.bin"
+groundtruth = "groundtruth.tsv"
+doc_ids = "doc_ids.npy"
+query_ids = "queries_ids.npy"
+index = "splade_v3_svb_grid"
+
+[indexing_parameters]
+m =               16
+ef-construction = 2000
+metric =          "dotproduct"
+
+[query]
+    # Target Recall: 90 | Achieved: 90.074 | Query Time (us): 343 | Bits/Edge: 19.99
+    [query."recall_90"]
+    early-termination = "distance-adaptive"
+    ef-search =      12
+    lambda =         0.07
+    compression =    "stream-v-byte"
+    permute =        true
+    # Target Recall: 95 | Achieved: 95.338 | Query Time (us): 592 | Bits/Edge: 19.99
+    [query."recall_95"]
+    early-termination = "distance-adaptive"
+    ef-search =      14
+    lambda =         0.13
+    compression =    "stream-v-byte"
+    permute =        true
+    # Target Recall: 99 | Achieved: 99.037 | Query Time (us): 3159 | Bits/Edge: 19.99
+    [query."recall_99"]
+    early-termination = "distance-adaptive"
+    ef-search =      32
+    lambda =         0.25
+    compression =    "stream-v-byte"
+    permute =        true
