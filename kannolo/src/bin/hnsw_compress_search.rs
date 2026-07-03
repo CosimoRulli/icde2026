@@ -13,9 +13,7 @@ use kannolo::graph::egb::{
 };
 use kannolo::graph::graph::{Graph, GraphTrait, GrowableGraph};
 use kannolo::graph::neighbors::{
-    BitPackedNeighbors, EliasFanoNeighbors, NeighborData, Neighbors,
-    PlainNeighbors, StreamVByteNeighbors, ZetaNeighbors,
-    set_zeta_codec_k,
+    NeighborData, Neighbors, PlainNeighbors, StreamVByteNeighbors,
 };
 use kannolo::hnsw::{EarlyTerminationStrategy, HNSW, HNSWSearchConfiguration};
 use kannolo::hnsw_utils::validate_permutation;
@@ -104,9 +102,6 @@ enum ComponentTypeArg {
 #[derive(Debug, Clone, ValueEnum)]
 enum CompressionType {
     None,
-    BitPacked,
-    EliasFano,
-    Zeta,
     StreamVByte,
 }
 
@@ -196,11 +191,6 @@ struct Args {
     #[clap(long, value_enum)]
     #[arg(default_value_t = CompressionType::None)]
     compression: CompressionType,
-
-    /// Zeta codec k parameter used when --compression zeta is selected.
-    #[clap(long = "zeta-k", value_parser)]
-    #[arg(default_value_t = 3)]
-    zeta_k: usize,
 
     /// Optional .npy file containing an EGB permutation (old_id -> new_id).
     /// When provided, the graph and dataset are remapped consistently before search.
@@ -317,15 +307,6 @@ fn main() {
     }
 
     let metric = parse_metric(&args.distance);
-
-    if args.zeta_k == 0 {
-        eprintln!("Error: --zeta-k must be greater than 0.");
-        std::process::exit(1);
-    }
-    set_zeta_codec_k(args.zeta_k);
-    if matches!(args.compression, CompressionType::Zeta) {
-        println!("[######] Zeta codec k: {}", args.zeta_k);
-    }
 
     // Brute in-memory convert path: load an existing plain-f16 / dp8 index and convert it to the
     // target encoder in memory (no rebuild). Reuses the source graph + EGB permutation.
@@ -533,23 +514,6 @@ macro_rules! dispatch_compression {
             CompressionType::None => {
                 let $index =
                     load_and_compress_index::<$dataset_ty, PlainNeighbors, _>($args, $permute_fn);
-                $body
-            }
-            CompressionType::BitPacked => {
-                let $index = load_and_compress_index::<$dataset_ty, BitPackedNeighbors, _>(
-                    $args, $permute_fn,
-                );
-                $body
-            }
-            CompressionType::EliasFano => {
-                let $index = load_and_compress_index::<$dataset_ty, EliasFanoNeighbors, _>(
-                    $args, $permute_fn,
-                );
-                $body
-            }
-            CompressionType::Zeta => {
-                let $index =
-                    load_and_compress_index::<$dataset_ty, ZetaNeighbors, _>($args, $permute_fn);
                 $body
             }
             CompressionType::StreamVByte => {
@@ -1427,24 +1391,6 @@ macro_rules! dispatch_compression_convert {
         match $args.compression {
             CompressionType::None => {
                 let $index = load_convert_compress::<$src_ty, $dst_ty, PlainNeighbors, _, _>(
-                    $args, $to_target, $permute_fn,
-                );
-                $body
-            }
-            CompressionType::BitPacked => {
-                let $index = load_convert_compress::<$src_ty, $dst_ty, BitPackedNeighbors, _, _>(
-                    $args, $to_target, $permute_fn,
-                );
-                $body
-            }
-            CompressionType::EliasFano => {
-                let $index = load_convert_compress::<$src_ty, $dst_ty, EliasFanoNeighbors, _, _>(
-                    $args, $to_target, $permute_fn,
-                );
-                $body
-            }
-            CompressionType::Zeta => {
-                let $index = load_convert_compress::<$src_ty, $dst_ty, ZetaNeighbors, _, _>(
                     $args, $to_target, $permute_fn,
                 );
                 $body
