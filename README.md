@@ -80,9 +80,8 @@ pip install -r seismic/scripts/requirements.txt
 pip install -r kannolo/scripts/requirements.txt
 ```
 
-> **NUMA.** On multi-socket machines, uncomment/adjust the `NUMA` line in the `[settings]` section of a
-> config (e.g. `numactl --physcpubind='0-15' --localalloc`) to match your hardware for representative
-> timings.
+**NUMA.** On multi-socket machines, uncomment/adjust the `NUMA` line in the `[settings]` section of a config
+(e.g. `numactl --physcpubind='0-15' --localalloc`) to match your hardware for representative timings.
 
 ---
 
