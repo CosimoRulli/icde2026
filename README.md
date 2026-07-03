@@ -73,9 +73,7 @@ automatically on first run). To use a different location, just edit the `[folder
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-
-
-**Python** (one environment per engine, or a shared one):
+**Python** (python >= 3.11, one environment per engine, or a shared one):
 
 ```bash
 pip install -r seismic/scripts/requirements.txt
